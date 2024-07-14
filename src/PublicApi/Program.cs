@@ -18,14 +18,28 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MinimalApi.Endpoint.Configurations.Extensions;
 using MinimalApi.Endpoint.Extensions;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Logging.AddApplicationInsights(
+        configureTelemetryConfiguration: (config) => 
+            config.ConnectionString = builder.Configuration.GetValue<String>("ApplicationInsights:ConnectionString"),
+            configureApplicationInsightsLoggerOptions: (options) => { }
+    );
+
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft.eShopWeb.PublicApi", LogLevel.Trace);
+
 builder.Services.AddEndpoints();
+
+throw new Exception("Cannot move further");
 
 // Use to force loading of appsettings.json of test project
 builder.Configuration.AddConfigurationFile("appsettings.test.json");
