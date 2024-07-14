@@ -39,8 +39,6 @@ builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft.eShopWeb
 
 builder.Services.AddEndpoints();
 
-throw new Exception("Cannot move further");
-
 // Use to force loading of appsettings.json of test project
 builder.Configuration.AddConfigurationFile("appsettings.test.json");
 builder.Logging.AddConsole();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Ardalis.GuardClauses;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 
@@ -43,5 +44,13 @@ public class Order : BaseEntity, IAggregateRoot
             total += item.UnitPrice * item.Units;
         }
         return total;
+    }
+
+    public string ToJson()
+    {
+        var options = new JsonSerializerOptions{
+            WriteIndented = true
+        };
+        return JsonSerializer.Serialize(this, options);
     }
 }
