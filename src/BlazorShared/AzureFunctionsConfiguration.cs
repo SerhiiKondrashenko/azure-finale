@@ -7,6 +7,3 @@ public class AzureFunctionsConfiguration
 
     public string SendOrderRecipe { get; set; }
 }
-
-
-

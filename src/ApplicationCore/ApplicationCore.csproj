@@ -6,6 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Messaging.ServiceBus" />
 		<PackageReference Include="Ardalis.GuardClauses" />
 		<PackageReference Include="Ardalis.Result" />
 		<PackageReference Include="Ardalis.Specification" />		

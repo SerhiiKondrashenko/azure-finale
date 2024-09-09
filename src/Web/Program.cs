@@ -95,6 +95,10 @@ builder.Services.Configure<ServiceConfig>(config =>
 var azureConfigSection = builder.Configuration.GetRequiredSection(AzureFunctionsConfiguration.CONFIG_NAME);
 builder.Services.Configure<AzureFunctionsConfiguration>(azureConfigSection);
 
+// service bus configuration
+var serviceBusConfigSection = builder.Configuration.GetRequiredSection(ServiceBusConfiguration.CONFIG_NAME);
+builder.Services.Configure<ServiceBusConfiguration>(serviceBusConfigSection);
+
 // blazor configuration
 var configSection = builder.Configuration.GetRequiredSection(BaseUrlConfiguration.CONFIG_NAME);
 builder.Services.Configure<BaseUrlConfiguration>(configSection);

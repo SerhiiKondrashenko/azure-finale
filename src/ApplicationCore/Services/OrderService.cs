@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
+using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
@@ -23,13 +25,16 @@ public class OrderService : IOrderService
     private readonly ILogger _logger;
 
     private readonly string _orderRecipeUrl;
+    private readonly string _serviceBusConnectionString;
+    private readonly string _queueName;
 
     public OrderService(IRepository<Basket> basketRepository,
         IRepository<CatalogItem> itemRepository,
         IRepository<Order> orderRepository,
         IUriComposer uriComposer,
         ILogger<OrderService> logger,
-        IOptions<AzureFunctionsConfiguration> options)
+        IOptions<AzureFunctionsConfiguration> options,
+        IOptions<ServiceBusConfiguration> serviceBusOptions)
     {
         _orderRepository = orderRepository;
         _uriComposer = uriComposer;
@@ -37,6 +42,33 @@ public class OrderService : IOrderService
         _itemRepository = itemRepository;
         _logger = logger;
         _orderRecipeUrl = options.Value.SendOrderRecipe;
+        _serviceBusConnectionString = serviceBusOptions.Value.ConnectionString;
+        _queueName = serviceBusOptions.Value.QueueName;
+    }
+
+    private async Task SendToWarehouse(string orderJson)
+    {
+        await using (var client = new ServiceBusClient(_serviceBusConnectionString)) 
+        {
+            
+            ServiceBusSender sender = client.CreateSender(_queueName);
+            ServiceBusMessage message = new ServiceBusMessage(orderJson);
+            try
+            {
+                // Send the message
+                await sender.SendMessageAsync(message);
+                _logger.LogInformation("Message was sent successfully.");
+            }
+            catch (Exception exception)
+            {
+                _logger.LogInformation($"Exception: {exception.Message}");
+            }
+            finally
+            {
+                // Close the sender
+                await sender.DisposeAsync();
+            }
+        }
     }
 
     public async Task CreateOrderAsync(int basketId, Address shippingAddress)
@@ -66,6 +98,7 @@ public class OrderService : IOrderService
         var json = order.ToJson();
         var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await httpClient.PostAsync(_orderRecipeUrl, data);
+        // var response = await httpClient.PostAsync(_orderRecipeUrl, data);
+        await SendToWarehouse(json);
     }
 }
