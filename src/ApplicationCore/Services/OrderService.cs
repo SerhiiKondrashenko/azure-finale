@@ -98,7 +98,7 @@ public class OrderService : IOrderService
         var json = order.ToJson();
         var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-        // var response = await httpClient.PostAsync(_orderRecipeUrl, data);
+        await httpClient.PostAsync(_orderRecipeUrl, data);
         await SendToWarehouse(json);
     }
 }
